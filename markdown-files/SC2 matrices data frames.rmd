@@ -1,0 +1,214 @@
+---
+title: "Introduction: Statistical Computing with R"
+subtitle: "Part  2: matrices and data frames"
+author: "Aadapted from Birgit Erni, Allan Clark, Res Altwegg"
+institute: "Department of Statistical Sciences, University of Cape Twon "
+date:  "`r format(Sys.time(), '%d %B %Y')`"
+output: beamer_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Outline
+
+- matrices and matrix algebra
+- data frames
+
+## Matrices
+
+$$X = \begin{bmatrix} 1 & 1.2 & 3 \\
+                      1 & 5.6 & 10 \\
+                      1 & 3.5 & 7 \\
+      \end{bmatrix}$$
+
+e.g. regression (design) matrix
+
+## Creating Matrices
+
+1. Convert a vector into an n x m matrix. The following code will create a $4 \times 4$ matrix. Note that the matrix is created column wise, i.e. column one is filled up first, etc.. You can change this by specifying `byrow = T`.
+
+```{r matrix1, echo = TRUE}
+numbers <- 1:16
+m1 <- matrix(numbers, nrow = 4)
+```
+
+2. With cbind() or rbind(): binds vectors column- or row-wise
+```{r matrix2, echo = TRUE}
+numbers1 <- 1:4
+numbers2 <- 11:14
+m2 <- cbind(numbers1, numbers2)  # column-bind
+```
+
+3. diagonal matrix
+```{r matrix 3, eval = FALSE, echo = TRUE}
+diag(4)          # 4 by 4 identity matrix
+diag(c(0.1, 0.2, 0.7))
+```
+
+## Calculations with matrices
+
+```{r matrix4, eval = FALSE, echo = TRUE}
+t(m1)                # transpose of m1
+dim(m1)              # 4 by 4 matrix
+
+m1 * m1          # element-wise multiplication
+
+v1 <- rep(1, times = 4)
+v1 %*% m1         # matrix multiplication
+m1 %*% m1
+
+m1 <- matrix(1:4,nrow = 2)
+solve(m1)          # inverse of m1
+solve(m1) %*% m1       
+
+rowSums(m1)
+colMeans(m1)
+```
+
+## Subsetting/indexing matrices
+
+```{r matrix5, eval = FALSE, echo = TRUE}
+m3 <- matrix(1:12, nrow = 3)
+m3[2, ]     # row 2
+m3[, 3]     # column 3
+m3[2, 3]    # element at row 2, column 3
+m3[-1, ]     # all except row 1
+```
+
+## Prac 2
+
+There are 2 trees in the middle of the Kalahari. On each tree birds of unknown species are sitting and feeling very hot. A bird from the first tree says to those on the second tree: “Hi – if one of you come to our tree then there will be the same number of us on each tree”. “Yeah,
+right”, says a bird from the second tree, “but if one of you comes to our tree, then
+we will be twice as many on our tree as on yours”.[^1]
+
+**Question:** How many birds are on each tree? More specifically:
+
+- Write up two equations with two unknowns.
+- Solve these equations using the methods you have learned above.
+- Simply finding the solution by trial–and–error is considered cheating.
+
+
+[^1]: adapted from <https://www.math.uh.edu/~jmorgan/Math6397/day13/LinearAlgebraR-Handout.pdf>
+
+## Logical operators
+
+!  &  |  == 
+
+```{r logical, echo = TRUE, eval = FALSE}
+y <- c(1, 2, 3, NA, 4, 5)
+
+is.na(y)
+!is.na(y)
+
+y > 1 & y < 2
+
+y > 1 | y < 2
+
+y[!is.na(y)]
+
+```
+
+## Character vectors
+
+```{r char1, eval = FALSE, echo = TRUE}
+site <- c("CT", "JHB", "JHB", "DB")
+filename <- "Rintro.R"    # vector of length 1
+lett <- letters; letters
+treat <- rep(LETTERS[1:3], each = 3); treat
+```
+
+
+## Types of R objects
+
+- **data objects/structures:** vectors, matrices, data frames, lists, arrays, factors
+- **functions**
+- output from regression model 
+
+
+## Data frames
+
+- This is the way statisticians, and R, like to store data.
+- Like a spreadsheet (rows and columns).
+- Ideally: each row is an observation (case), each column is a variable (*tidy data*).
+- Similar to matrices, but columns can be of different data types. 
+
+Example (one data set from R, one from Gapminder):
+
+```{r df, echo = TRUE, eval = TRUE}
+head(airquality)
+```
+
+## Data frames
+
+```{r df2, echo = TRUE, eval = TRUE}
+library(gapminder)
+str(gapminder)
+head(gapminder)
+```
+
+## Extracting values from data frames
+
+similar to matrices
+
+```{r df3, echo = TRUE, eval = FALSE}
+names(gapminder)
+gapminder$country  # only the country column, now a vector
+gapminder["country"]
+
+## only SA rows
+gapminder[gapminder$country == "South Africa", ]  
+```
+
+
+## Some basic statistics
+
+**Frequency Tables**
+```{r basicstats, echo = TRUE, eval = FALSE}
+table(continent)
+table(gapminder$continent)
+with(gapminder, table(continent))
+
+## avoid attach! 
+attach(gapminder)
+table(continent)
+detach(gapminder)
+```
+
+## Summary Statistics
+
+```{r basicstats2, echo = TRUE, eval = TRUE}
+mean(gapminder$lifeExp)
+summary(gapminder$gdpPercap)  # 5-number summary
+```
+
+sd, var, min, range, quantile
+
+
+## Prac 3
+
+\footnotesize
+1. Find all rows in airquality that have missing values. 
+2. Find mean, sd, min, max for each of temperature and ozone level.
+3. For **linear regression**, parameter estimates can be found as follows. 
+
+$$\hat{\beta} = (X'X)^{-1} X'Y$$
+
+Here, $Y$ is the response variable, and $X$ is the design matrix. 
+
+The `cars` data (an R data set) contains two variables: speed and distance to stop. Fit a simple linear regression model to these data, i.e. find the $\hat{\beta}$ estimates, using the equation above, and matrix calcuations in R. 
+
+4. Check that you get the same $\hat{\beta}$ estimates as when fitting the linear regression model using `lm()` in R.
+
+```{r lm, eval = FALSE, echo = TRUE}
+m1 <- lm(dist ~ speed, data = cars)
+summary(m1)
+```
+
+
+5. Mean life expectancy in South Africa? 53.99317.
+
+
+
+
