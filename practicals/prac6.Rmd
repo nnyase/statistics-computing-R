@@ -1,0 +1,59 @@
+---
+title: "Practical 6"
+author: "Ndivhuwo Nyase"
+date: "2/2/2023"
+output:
+  html_document: default
+  pdf_document: default
+---
+`r options(knitr.duplicate.label = "allow")`
+# Question 1-5
+```{r}
+library(gapminder)
+plot(gapminder$lifeExp, log(gapminder$gdpPercap),
+     pch = 19,
+     cex = 1,
+     col = gapminder$continent,
+     xlab = 'Life Expectancy',
+     ylab = 'Log(GDP Per Capita)',
+     main ='Life Expectancy against log GDP per capita',
+     )
+legend('bottomright',legend = unique(gapminder$continent), col = unique(gapminder$continent), pch = 19)
+
+
+```
+
+# Question 6 
+
+There are `r length(unique(gapminder$country))` countries in the dataset.
+
+# Question 7
+There are `r african_contries<-gapminder[gapminder$continent == 'Africa',1]
+nrow(unique(african_contries))` in Africa.
+
+# Question 8 Lowest Life Expectancy per country
+
+```{r}
+years <- unique(gapminder$year)
+for (year in years) {
+  gapminder_year <- gapminder[gapminder$year == year,]
+  min_country <- gapminder_year[gapminder_year$lifeExp == min(gapminder_year$lifeExp),1]
+  print(year)
+  print(toString(min_country[[1]]))
+  print(min(gapminder_year$lifeExp))
+}
+```
+
+
+# Question 8 Highest Life Expectancy per country
+
+```{r setup, include = TRUE}
+years <- unique(gapminder$year)
+for (year in years) {
+  gapminder_year <- gapminder[gapminder$year == year,]
+  max_country <- gapminder_year[gapminder_year$lifeExp == max(gapminder_year$lifeExp),1]
+  print(year)
+  print(toString(max_country[[1]]))
+  print(max(gapminder_year$lifeExp))
+}
+```
