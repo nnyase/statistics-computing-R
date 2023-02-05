@@ -1,0 +1,48 @@
+---
+title: "Chapter6 Programming in R"
+author: "Ndivhuwo Nyase"
+date: "2023-02-03"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## for loop
+```{r looop }
+nsim <- 10000 # number of simulations
+emax <- numeric(nsim) # empty vector to store values
+# generated in for loop
+head(emax)
+
+for(i in 1:nsim) {
+vals <- rexp(10, rate = 5)
+emax[i] <- max(vals)
+}
+
+head(emax)
+hist(emax)
+plot(emax)
+```
+
+## Functions
+
+```{r functions}
+calcMean <- function(my_vector){
+n <- length(my_vector)
+my_mean <- sum(my_vector)/n
+return(my_mean)
+}
+
+# Create a vector of 5 arbitrary numbers
+x <- c(3.215, 0.561, 0.714, 1.643, 1.227)
+
+# Use the function I've created to calculate the mean of the vector x
+calcMean(my_vector = x)
+
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
