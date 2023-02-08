@@ -1,0 +1,28 @@
+---
+title: "prac14"
+author: "Ndivhuwo Nyase"
+date: "2023-02-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## prac 14
+# QUESTION 1
+```{r QUESTION 1}
+X <- rexp(1000,rate = 5)
+n_sizes <- seq(from=5, by=15, length.out=500)
+n_sizes
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
