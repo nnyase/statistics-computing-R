@@ -1,0 +1,183 @@
+---
+title: "prac12"
+author: "Ndivhuwo Nyase"
+date: "2023-02-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 1
+
+What is probability of getting the different winning symbols?
+1.1 Spin the reel once.
+1.2 Note the symbol.
+1.3 Repeat 1 and 2 above many times (10000).
+1.4 Take note of how many times each of the symbols appear.
+1.5 Divide by 10000. This is an estimate of the probability.
+
+```{r setup of payout and symbol functions}
+# Create the reel with the various probabililites
+reel <- 1:6 #the different categories
+probs <- c( 7, 5, 3, 6, 9, 20 )/50
+spin <- sample(reel, size = 1, prob = probs)
+
+payout_and_symbol <- function(spin) {
+  
+  
+  if (spin==1)
+  {
+    payout<-2
+    symbol<- 'hearts'
+  } else if (spin==2)
+  {
+    payout<-2.5
+    symbol <- 'diamonds'
+  } else if (spin==3)
+  {
+    payout<-8
+    symbol <- 'spades'
+  }else if (spin==4)
+  {
+    payout<-4
+    symbol <- 'clubs'
+  } else if (spin==5)
+  {
+    payout<-2.5
+    symbol <- 'joker'
+  } else if (spin == 6)
+  { payout <- 0 
+  symbol <- 'ca'
+  }else { 
+    payout <- 0
+    symbol <- FALSE}
+  
+  return(c(payout,symbol))
+}
+```
+
+## QUESTION 1
+
+```{r pressure, echo=TRUE}
+# Part 1 
+# 1.1 Spin the reel once.
+spin <- sample(reel, size = 1, prob = probs)
+spin
+symbol<- payout_and_symbol(spin)
+symbol[2]
+
+spin_reel_nsim <- function(simulations,payout=FALSE,symbol=TRUE){
+  i <- 0 
+  result <- c()
+  while(i < simulations) {
+    i <- i + 1
+    spin <- sample(reel, size = 1, prob = probs, replace = TRUE)
+    p_s <- payout_and_symbol(spin)
+    if (symbol == TRUE & payout == FALSE)
+    {
+      result <- append(result,p_s[2])
+    } else if (payout == TRUE & symbol == FALSE) {
+      result <- append(result,p_s[1])
+    } else if (payout == TRUE & symbol == TRUE) {
+      result <- append(result,p_s)
+    } else return('CHECK PARAMETERS')
+    
+  }
+  
+  return(result)
+}
+
+#1.3
+part1 <- spin_reel_nsim(10000)
+
+
+part1<-as.factor(part1)
+# 1.4
+tab <- table(part1)
+tab
+
+# 1.5
+nsim<-sum(as.vector(table(part1)))
+
+probabilities <- (tab/nsim)*100
+cbind(levels(part1),probabilities)
+```
+## QUESTION 2
+Calculate the average pay out if you spin the reel once. - i.e. one ‘play’ of the
+game is to spin the reel once, and you play the game 10000 times.
+2.1 Spin the reel once.
+2.2 Note the symbol.
+2.3 Note the payout – store it.
+2.4 Repeat 1, 2 and 3 above many times (10000).
+2.5 You should now have 10 000 payout values.
+2.6 Calculate the mean of these values. This is an estimate of the average.
+payout if you play the game once. - Compare it to the true value!
+
+```{r}
+# Part 2
+# 2.1
+spin <- sample(reel, size = 1, prob = probs)
+spin
+#2.2 and 2.3
+p_s <- payout_and_symbol(spin)
+p_s[1]
+
+#2.4
+part2 <- spin_reel_nsim(10000, payout = TRUE, symbol = FALSE)
+
+part2f <- as.numeric(part2)
+
+mean(part2f)
+
+#2.5
+spin <- sample(reel, size = 10000, prob = probs, replace = TRUE)
+
+true <- mean(probs[spin])
+true
+```
+## QUESTION 3
+Calculate the average total pay out if you spin the reel 10/100/1000 times -
+i.e. one ‘play’ of the game is to spin the reel 10/100/1000 times, and you play
+the game 10000 times.
+3.1 Graphically display the average total pay out after 10/100/1000 plays of the
+game by means of histograms and box and whisker plots.
+3.2 Describe the distribution of the average total pay out pay out for each case
+by calculating relevant summary statistics.
+
+```{r}
+ngames_func <- function(ngames, size_, payout_=TRUE, symbol_=FALSE){
+  game_pay <- numeric(ngames)
+  for (i in 1:ngames) {
+    outs = as.numeric(spin_reel_nsim(size_,payout = payout_, symbol = symbol_ ))
+    game_pay[i] <- mean(outs)
+  }
+  return(game_pay)
+}
+
+game10 <- ngames_func(10000,10,payout_ = TRUE,symbol_ = F)
+hist(game10)
+
+
+game100 <- ngames_func(10000,100,payout_ = TRUE,symbol_ = F)
+hist(game100)
+
+game1000 <- ngames_func(10000,1000,payout_ = TRUE,symbol_ = F)
+hist(game1000)
+
+boxplot(game10,game100,game1000, frame = FALSE,
+        notch = TRUE, names = c('10 spins','100 spins', '1000 spins')
+        , col =2:4 )
+
+all_games <- cbind(game10,game100,game1000)
+summary(all_games)
+
+
+```
+The distribution of game 10 is more extreme as you can get averages of games from 0 to 4.9. This is due to the fact that in one game repeated 10 times you may get lucky or very unlucky. 
+
+The distribution of game 100 and 1000 are more centred towards the mean due to cental limit theorom in which with a larger sample size, your sample mean is more likely to be close to the real population mean.
+
+
+
