@@ -1,7 +1,7 @@
 ---
 title: "prac14"
 author: "Ndivhuwo Nyase"
-date: "2023-02-08"
+date: "2023-02-09"
 output: html_document
 ---
 
@@ -9,12 +9,45 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## prac 14
-# QUESTION 1
-```{r QUESTION 1}
-X <- rexp(1000,rate = 5)
-n_sizes <- seq(from=5, by=15, length.out=500)
-n_sizes
+## question 1
+
+
+
+```{r question 1}
+
+n.sam <- 1000
+x.sam <- rexp(n.sam,5)
+
+
+# method 1
+g <- function(x){ (x^2)}
+# compute the MC approximation
+theta.mc <- mean(sapply(x.sam, g))
+print(theta.mc)
+
+# method 2
+mean(x.sam^2)
+
+
+```
+
+```{r part 2}
+
+variance <- function(x,x_means) { (x-x_means)^2}
+
+n.sam <- 1000
+x.sam <- rexp(n.sam,5)
+x_mean <- mean(x.sam)
+exp_variance <- mean(sapply(x.sam,variance, x_mean))
+exp_variance
+
+```
+
+```{r question 3 }
+n.sam <- 1000
+
+
+
 ```
 
 ## Including Plots
