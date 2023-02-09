@@ -13,37 +13,22 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r snakes and ladders, echo=TRUE}
 snakes_ladders <- function() {
   dice <- 1:6
-  board <- 1:36
   total <- 1
+  board<- 1:36
   length(board)
   counter <- 0
   while(total <= length(board)-1) {
   
     roll <- sample(dice, size = 1)
     counter <- counter + 1
-    if (total + roll > 36) { 
-      }else {
-        total <- total + roll
-        if (total == 3) { 
-      total <- 16
-      } else if (total == 5) {
-          total <- 7
-      } else if (total == 12) {
-          total <- 2
-      } else if (total == 14) {
-          total <- 11  
-      } else if (total == 15) {
-          total <- 25
-      } else if (total == 18) {
-          total <-20
-      } else if (total == 21 ) {
-          total <-32
-      } else if (total == 31) {
-          total <- 19
-      } else if (total==35) {
-        total<- 35
-      }
-}}
+    vector <- c(1,2,16,4,7,6,7,8,9,10,11,2,13,11,25,16,
+                4,20,19,20,32,23,24,25,26,27,28,29,30,19,32,33,34,22,36)
+    if (total + roll > length(board)) {
+      next
+    } else total <- total + roll
+     
+    vector[total]
+    }
 return(counter)}
 ```
 
