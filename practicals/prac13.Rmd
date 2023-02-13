@@ -1,0 +1,62 @@
+---
+title: "prac13-snakes-and-ladders"
+author: "Ndivhuwo Nyase"
+date: "2/6/2023"
+output: html_document
+---
+
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Snakes and Ladders
+
+```{r snakes and ladders, echo=TRUE}
+snakes_ladders <- function() {
+  dice <- 1:6
+  total <- 1
+  board<- 1:36
+  length(board)
+  counter <- 0
+  while(total <= length(board)-1) {
+  
+    roll <- sample(dice, size = 1)
+    counter <- counter + 1
+    vector <- c(1,2,16,4,7,6,7,8,9,10,11,2,13,11,25,16,
+                4,20,19,20,32,23,24,25,26,27,28,29,30,19,32,33,34,22,36)
+    if (total + roll > length(board)) {
+      next
+    } else total <- total + roll
+     
+    vector[total]
+    }
+return(counter)}
+```
+
+## Histogram
+
+```{r empirical, echo=TRUE}
+x <- c()
+nsim <- 1000
+for (i in 1:nsim){
+  counter<-snakes_ladders()
+  x <- append(x, counter)
+}
+
+```
+
+```{r empiricial histogram}
+  hist(x,freq = FALSE,xlab = 'How many rounds to finish the game', ylab = 'Density', main ='empricial distribution of how many rounds it takes to finish snakes and ladders')
+
+
+```
+
+
+```{r include = TRUE}
+
+x.hist <- hist(x)
+mid_point_x <- c()
+for (i in 1:length(x.hist$breaks)-1){
+  mid_point_x[i] <- (x.hist$breaks[i] + x.hist$breaks[i+1])/2
+}
+plot(mid_point_x,cumsum(x.hist$counts),type ='b', ylab ='Cumalative summation',xlab = 'How many rounds', main = 'Cummalative Summation of how many rounds to finish the game', col = '#0099f9', lty = 1, lwd = 3)
+```

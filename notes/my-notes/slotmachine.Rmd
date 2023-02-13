@@ -1,0 +1,100 @@
+---
+title: "slotmachine_exercise"
+author: "Ndivhuwo Nyase"
+date: "2023-02-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+```
+
+## Chapter 7:
+# Slot Machine 
+
+```{r cars}
+#install.packages('kableExtra')
+library(knitr)
+library(dplyr)
+#notice how to make a table in Rmarkdown
+tile <- c("hearts", "diamonds", "spades", "clubs", "joker", "ca")
+n_tiles <- c(7, 5, 3, 6, 9, 20)
+win <- c(2, 2.5, 8, 4, 2.5, 0)
+reel <- cbind(tile, n_tiles, win)
+colnames(reel) <- c("Symbol","Number of tiles", "Payout")
+kable(reel, align = c("l","c", "c")) %>% kableExtra::kable_styling(bootstrap_options = 'striped')
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r}
+reel
+```
+
+```{r}
+reel2 <- c(rep("h",7), rep("d",5), rep("s",3), rep("c",6), rep("j",9), rep("ca",20))
+reel2
+
+reel3 <- c(rep(1,7), rep(2,5), rep(3,3), rep(4,6), rep(5,9), rep(6,20))
+reel3
+
+
+```
+
+``` {r}
+
+#?sample #look at the base package version, the dplyr package also has a version
+#randomly select an element from within reel
+spin <- sample(reel, size=1)
+spin
+```
+
+
+```{r}
+
+if (spin==1){payout<-2
+}else
+if (spin==2)
+{payout<-2.5
+}else
+if (spin==3)
+{payout<-8
+}else
+if (spin==4)
+{payout<-4
+}else
+if (spin==5)
+{payout<-2.5
+}else
+{ payout<-0
+}
+
+
+spin<- sample(reel, size=1)
+spin
+payout <- case_when(
+spin == 1 ~ 2,
+spin == 2 ~ 2.5,
+spin == 3 ~ 8,
+spin == 4 ~ 4,
+spin == 5 ~ 2.5,
+spin == 6 ~ 0
+)
+payout
+
+
+```
+
+```{r}
+reel2 <- 1:6
+#probabilities of different symbols on reel
+probs <- c( 7, 5, 3, 6, 9, 20 )/50
+winnings <- c(2, 2.5, 8, 4, 2.5, 0)
+(probs)
+spin <- sample(reel2, size=1, prob = probs)
+payout <- winnings[spin]
+payout
+
+```
