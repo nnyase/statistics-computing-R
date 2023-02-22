@@ -1,0 +1,159 @@
+---
+title: "Practical 17"
+author: "Ndivhuwo Nyase"
+date: "2023-02-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#install.packages("caTools")  
+#install.packages('caret')
+library(tidyverse)
+library(caTools)
+library(corrplot)
+library(ggplot2)
+set.seed(1)
+```
+
+## Question 1
+### 1) Download the pima data from Vula under Resources –> data and import it into R.
+
+```{r Question 1}
+pima <- read.csv("~/Desktop/statistics-computing-R/datasets/pima.csv")
+```
+
+## Question 2
+
+```{r q2}
+
+head(pima)
+summary(pima)
+
+
+```
+
+```{r question 2 plot}
+pima_corr <- cor(pima,pima)
+pima_corr
+corrplot(pima_corr,method = 'circle',addCoef.col ='black', number.cex = 0.6)
+
+
+
+```
+We will take the highly correlated vairables(GLC and age) and plot them against if the subject has diabetes. 
+```{r scatterplot }
+ggplot(data=pima, mapping = aes(x = glc, y = age)) + 
+  geom_point(aes(color = class,group = bmi, size = 2)) +
+  ggtitle("Plot showing relationship of GLC and age highlighed by if subject has diabetes.") +
+  xlab("Age(years)") + ylab("GLC")
+```
+
+
+```{r barplot}
+
+par(mfcol = c(2,2))
+for (index in 1:ncol(pima)){
+  
+ if (colnames(pima[index]) == "class"){ 
+   break 
+ }else {  boxplot(formula = unlist(pima[index])  ~ pima$class,
+        col = index+1,
+        ylab = paste0("",colnames(pima[index])),
+        xlab= 'Class',
+        main = paste0('Relationship between diabetes and ',colnames(pima[index]) )
+ )}
+}
+
+```
+
+## Question 3
+### Split the data into a training set, a validation set and a test set, with a[60:20:20] ratio.
+
+```{r Question 3}
+dtrain <-  sort(sample(nrow(pima), nrow(pima)*.6, replace = FALSE))
+train<-pima[dtrain,]
+
+dval <- sort(sample(nrow(pima), nrow(pima)*.2, replace = FALSE))
+val <- pima[dval,]
+dtest <- sort(sample(nrow(pima), nrow(pima)*.2, replace = FALSE))
+
+test<-pima[dtest,]
+
+```
+
+## Question 4
+### Using only one explanatory variable, fit a logistic regression model to the training data, using the validation data to assess the predictive accuracy of the model.
+
+In this logistic regression model we will use the variable glucose (glc) in this model as it has the highest correlation and seems to have a stronger relationship on whether the patient has diabetes on the box plots.
+```{r Question 4}
+val_q4 <- val %>% dplyr::select(glc, class)
+logistic_model <- glm(class ~ glc,
+                      data = train,
+                      family = 'binomial')
+
+summary(logistic_model)
+confint(logistic_model)
+
+predict_ <- predict(logistic_model, 
+                       val_q4, type = "response")
+predict_ 
+   
+# Changing probabilities
+predict_ <- ifelse(predict_ >0.5, 1, 0)
+
+# Evaluating model accuracy
+# using confusion matrix
+caret::confusionMatrix(table(unlist(val_q4['class']), predict_))
+
+misclassification <- mean(predict_!=val_q4['class'])
+print(paste0('Accuracy on Validation Set: ',1-misclassification))
+```
+
+```{r question 5 }
+
+
+library(doParallel)
+detectCores()
+cl <- makeCluster(3)
+registerDoParallel(cl)
+
+#double-check that you are using > 1 core!
+getDoParWorkers()
+
+ptime <- system.time({})
+model <- glm(class ~ glc + prg + bp,
+                      data = train,
+                      family = 'binomial')
+
+colnames(train)
+mod_summaries_3 <- list()
+
+
+for(i in 2:ncol(train)) {     
+  predictors_i <- colnames(train)[2:i]# Head of for-loop
+ for(j in 2:ncol(train)) {
+      predictor_j <- colnames(train)[2:j]
+      for (k in 2:ncol(train)) {
+        predictor_k <- colnames(train)[2:k]
+          mod_summaries_3[[i - 1]] <- summary(     # Store regression model summary in list
+            lm(class ~ ., train[ , c("class", predictors_i, predictor_j, predictor_k)]))
+      }
+ 
+ }
+}
+ 
+mod_summaries_3
+
+
+train_y <- train['class']
+train <- subset(train, select = -c(class))
+comb_df <- list()
+for (index in 1:ncol(train)) {
+comb_df[index]<-lapply(as.data.frame(combn(ncol(train) - 1, 2)), function(idx)
+    train[, c(1, idx + 1)])
+}
+
+comb_df
+
+```

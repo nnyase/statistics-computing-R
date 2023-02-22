@@ -1,0 +1,82 @@
+---
+title: "DS Masters Statistical Computing Assignment 1"
+author: "Your name"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = F, message = F, include = T, warning=F)
+```
+
+
+# Question 1 of 1 [20 Marks]
+
+The severity of software bugs can be classified as Low, Non trivial, Major, Critical and High. Five software packages were tested for bugs in each of their core environments, before and after Beta testing of the software package. In each test the number of each kind of bug was noted. 
+
+a. Read  the Bug data into \texttt{R} and print out the first 10 observations. \hfill [2]
+```{r, echo= T}
+
+```
+
+b. During data entry there was a mistake. Counts which were meant to be 10 were mistakenly entered in as zeros. Identify these observations. \hfill [2]
+
+```{r, echo= T}
+
+```
+
+c. Correct the data entry mistake mentioned in the question above. Use \texttt{summary()} to produce the five number summary for the variable (\texttt{Count}) after cleaning.  \hfill [2]
+
+```{r , echo= T}
+
+```
+
+
+d. Create a lot showing the total number of bugs identified for each software.\hfill [2]
+ 
+```{r , echo= T, eval=T}
+
+```
+
+e. What was the highest number of bugs found after Beta testing? \hfill [2] 
+
+```{r , echo= T}
+
+```
+
+
+f. For PDE software, create a table showing the total number of bugs of each type identified before and after the Beta test. Clearly label your rows and columns for the table. \hfill [3]
+
+```{r, echo= T, eval= T}
+
+```
+
+g. Add one to all the count values and take the logarithm, i.e., compute  $log(Count + 1)$. 
+   What is the mean value over all the entries? Give your answer to three decimal places. \hfill [2]
+
+```{r, echo= T, eval= T}
+
+```
+
+
+h.  For each software we can estimate $\lambda$, the rate of occurrence of the different kinds of bugs before and after Beta testing, as $$\lambda = \frac{k}{n}$$
+where: \newline
+$k$ number of occurrences of bug type for software.\newline
+$n$ total number of errors for software. \newline
+\newline
+  Write a function \texttt{queryRate()} that can be used in general to query data sets of this type and report the error rate $\lambda$ for each software type, error severity and Beta test timing combination. 
+  The function should have arguments \texttt{softwareType}, \texttt{errorSeverity} and \texttt{beta} to specify respectively the software type, bug type and Beta testing status of a particular error rate ($\lambda$) query.  The function should return values for $k$, $n$ and $\lambda$ as output. Use the function to query the rate for Low errors in the PDE software before Beta testing.
+\hfill [5]
+
+
+```{r, echo= T, eval= T}
+
+```
+
+
+
+
