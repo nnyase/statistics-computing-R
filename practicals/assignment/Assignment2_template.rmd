@@ -1,6 +1,6 @@
 ---
 title: "DS Masters Statistical Computing Assignment 2"
-author: "Your name HERE!"
+author: "Ndivhuwo Nyase!"
 date: "`r format(Sys.time(), '%d %B %Y')`"
 geometry: paperheight=12.5in,paperwidth=9.5in,margin=1in
 output:
@@ -31,7 +31,94 @@ For example, when ```nsim``` = 1000 that means you play each game 1000 times and
 Make a line plot that displays the mean of each payout option across the two games as a function of the number of times each game is played. Your plot should clearly indicate which line corresponds to which combination of game and payout option. Comment on what can be deduced about the two games and payout options.  \hfill [6]
 
 ```{r dice sim, eval = T}
+diceGame <- function(nsim) 
+{
+  #initialize data.frame to carry payouts
+  # DT
+  columns <- c('dtPayout1', 'dtPayout2')
+  dt_payouts <- data.frame(matrix(nrow = 0,ncol = length(columns)))
+  colnames(dt_payouts) <- columns
+  
+   # TD
+  columns <- c('ttPayout1', 'ttPayout2')
+  tt_payouts <- data.frame(matrix(nrow = 0,ncol = length(columns)))
+  colnames(tt_payouts) <- columns
+  
+  for(sim in 1:nsim)
+  {
+  # Roll the Dice
+  # DT
+  diceNumbers <- seq(from = 1, to = 6)
+  dt_dice1 <- sample(diceNumbers, size = 1)
+  dt_dice2 <- sample(diceNumbers, size = 1)
+  
+  # TT
+  diceNumbers <- seq(from = 1, to = 6)
+  tt_dice1 <- sample(diceNumbers, size = 1)
+  tt_dice2 <- sample(diceNumbers, size = 1)
+  tt_dice3 <- sample(diceNumbers, size = 1)
+  
+  # Evaluate Dice Rolls
+  # DT
+  if (dt_dice1 == dt_dice2)
+  {
+    # payout option 1 and payout option 2
+    DTpayout <- c(50,(10*dt_dice1*dt_dice2))
+    
+  }else {
+    DTpayout <- c(0,0)
+  }
+  dt_payouts[sim,] <- DTpayout
 
+  if (tt_dice1 == tt_dice2 & tt_dice1 == tt_dice3)
+  {
+    # payout option 1 and payout option 2
+    payouts <- c(50,(10*tt_dice1*tt_dice2*tt_dice3))
+    
+  }else {
+    payouts <- c(0,0)
+  }
+  tt_payouts[sim,] <- payouts
+  }
+
+  
+ MeanDTpayout1<- mean(dt_payouts$dtPayout1)
+ MeanDTpayout2 <- mean(dt_payouts$dtPayout2)
+ MeanTTpayout1<- mean(tt_payouts$ttPayout1)
+ MeanTTpayout2 <- mean(tt_payouts$ttPayout2)
+ 
+ return(c(MeanDTpayout1,MeanDTpayout2,MeanTTpayout1,MeanTTpayout2))
+ 
+  }
+```
+
+```{r}
+#sim_nsim
+
+meancolumns <- c('MeanDTpayout1', 'MeanDTpayout2','MeanTTpayout1','MeanTTpayout2')
+mean_payout <- data.frame(matrix(nrow = length(sim_nsim),ncol = length(meancolumns)))
+colnames(mean_payout) <- meancolumns
+row.names(mean_payout) <- sim_nsim 
+
+mean_payout
+for (sims in 1:sim_nsim){
+  mean_payout[sims,] <- diceGame(sim_nsim[sims])
+}
+
+
+
+```
+
+```{r}
+
+means<-mean_payout[1:100,]
+
+summary(means)
+plot(1, type = "n", xlab = "",
+     ylab = "", xlim = c(0, 5), 
+     ylim = c(0, 5))
+points(x= means$MeanDTpayout1,col = 'red', type='l')
+points(x= means$MeanDTpayout2,col = 'blue', type='l')
 ```
 
 
