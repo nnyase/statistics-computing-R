@@ -11,6 +11,7 @@ output:
 
 ```{r setup, include=FALSE}
 library(knitr)
+library(ggplot2)
 knitr::opts_chunk$set(echo = F, message = F, include = T, warning=F)
 ```
 
@@ -114,11 +115,8 @@ for (sims in 1:sim_nsim){
 means<-mean_payout[1:100,]
 
 summary(means)
-plot(1, type = "n", xlab = "",
-     ylab = "", xlim = c(0, 5), 
-     ylim = c(0, 5))
-points(x= means$MeanDTpayout1,col = 'red', type='l')
-points(x= means$MeanDTpayout2,col = 'blue', type='l')
+
+ggplot(data = means) + geom_freqpoly(means,mapping= aes(x=MeanDTpayout1)) + geom_freqpoly(mapping = aes(x=MeanDTpayout2), col = 'red') + geom_freqpoly(mapping = aes(x=MeanTTpayout1), col = 'blue') + geom_freqpoly(mapping = aes(x=MeanTTpayout2), col = 'green') + ggtitle()
 ```
 
 
@@ -129,12 +127,20 @@ Now suppose that the payout for Double trouble is a function: $$ p(x) = 50log(x)
 b. Graph the function, for $x \, \epsilon \, [1;100]$ \hfill [1]
 
 ```{r payout graph, eval = T}
-
+vec <- 1:100
+px<- 50*log(vec) - (vec)
+plot(px, type = 'l',xlab = 'x',ylab='p(x)')
 ```
 
 c. Use ```optim``` to determine the optimal number of throws to maximise the payout. Start with x = 1 throws. \hfill [1]
 
 ```{r optim payout, eval = T}
+px <- function(x){
+  return(50*log(x)-x)
+}
+
+
+optim(1,fn=px,control=list(fnscale=-1))
 
 ```
 
@@ -143,7 +149,11 @@ d. Write a function to use the Newton-Raphson method to find the optimum number 
 *Hints: $\dfrac{d}{dx} 50log(x+1) - x = \dfrac{50}{x+1} - 1$ and $\dfrac{d}{dx} \frac{50}{x+1} - 1 = \frac{-50}{(x+1)^2}$
 
 ```{r newton raphson payout, eval = T}
+hx <- function(x){
+  return(-50/(x+1)^2)
+}
 
+optim(1,fn=hx)
 ```
 
 \vspace{20pt} 
@@ -159,11 +169,24 @@ a. Graph this function over the domains $x \, \epsilon \, [-5;5]$ and $y \, \eps
 
 ```{r function graph, eval = T}
 
+xy <- function(x,y){
+  return(x^2 + y^2 + x*sin(y) + y*sin(x))
+}
+
+dx_vec <- Vectorize(FUN=xy,vectorize.args = c("x", "y"))
+x_range <- seq(from = -5, to = 5, length=20)
+y_range <- seq(from = -5, to = 5, length=20)
+z <- outer(X = x_range, Y = y_range, FUN= "xy" )
+
+par(mfrow=c(1,1), pty="s")
+contour(x_range, y_range, z, nlevels=20, xlab='X', ylab='Y')
 ```
 
 b. Find the minimum of the function using ```optim``` with the Nelder-Mead method. Use (-4,-4) as the starting values for x and y.  \hfill [2]
 
 ```{r optim grad, eval = T}
+
+optim(par=c(0,0), fn=xy)
 
 ```
 
@@ -179,7 +202,7 @@ d.  Now, write your own gradient descent algorithm. Name the function ```grad_de
 Print out the optimal parameter values, the value of the function at these parameter values, the gradients, and the number of iterations taken for the algorithm to converge. If the algorithm does not converge within ```max_iters```, terminate the algorithm and print a message that indicates that the algorithm did not converge within ```max_iters``` iterations. \hfill [4]
 
 ```{r grad desc, eval = T}
-
+grad <- function()
 ```
 
 e. Using your gradient descent algorithm above, write a program to investigate the effect of using different learning rates, ranging from $\alpha = 0.005$ to $\alpha = 0.495$ in increments of 0.001. Use the same values for all the other parameters of the algorithm as above. Record the number of iterations taken to reach convergence for each value of $\alpha$. Plot a line graph of the number of iterations to reach convergence as a function of the learning rate. Title the graph appropriately. \hfill [3]
@@ -198,7 +221,7 @@ e. Using your gradient descent algorithm above, write a program to investigate t
 The figure below is of the game 'tic tac toe' or 'noughts and crosses'. The game is played by two players, one who enters 'X's and another who enters '0's. The players take turns in choosing which of the nine blocks to enter their symbol, with the goal being to win the game by having three of their symbols in a row (either in a straight line or along a diagonal). If neither player manages to get three of their symbols in a row before all nine blocks have symbols, the game ends in a draw. 
 
 ```{r tictactoe,fig.align='center', out.width = '200px'}
-include_graphics('tictactoe.png')
+
 ```
 
 Write an R program in order to simulate the above game 10000 times.Your program should do the following:
