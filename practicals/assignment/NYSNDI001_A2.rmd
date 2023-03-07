@@ -1,0 +1,428 @@
+---
+title: "DS Masters Statistical Computing Assignment 2"
+author: "Ndivhuwo Nyase!"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+geometry: paperheight=12.5in,paperwidth=9.5in,margin=1in
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(ggplot2)
+options(scipen = 100)
+knitr::opts_chunk$set(echo = F, message = F, include = T, warning=F)
+```
+
+
+
+## Question 1 [12]
+
+Should you play the 'Double trouble' or 'Triple threat' dice game? Both games cost R1 to play. To play Double trouble, you roll two six-sided dice at the same time. To play Triple threat, you roll three six-sided dice at the same time. You win whenever all of the dice display the same number e.g. (1,1) or (4,4) for Double trouble, or (2,2,2) or (3,3,3) for Triple threat. 
+
+There are two payment options for both of these games:
+
+  - R50 each time you win, or
+  - R10 x (product of numbers on die)  e.g. if you win in Double trouble by rolling two 4's, your payout is R10 x 4x4 = R160. If you win by rolling three 2's in Triple threat, your payment is R10 x 2x2x2 = R80.
+  
+a. Write functions to simulate each of these games ```nsim``` times, calculating the two payouts for each game for each time you simulate the game (i.e. you should end up with four payout vectors, two for each game, with lengths equal to ```nsim```). 
+Replicate simulations of these games, for a sequence of ```nsim``` values from 100 to 100 000, in increments of 100. Calculate the mean of the payout for each of these replications. 
+For example, when ```nsim``` = 1000 that means you play each game 1000 times and calculate the mean of the two payout options for each game, and end up with 1000 sets of mean payouts for each of the two payout options for each game. 
+Make a line plot that displays the mean of each payout option across the two games as a function of the number of times each game is played. Your plot should clearly indicate which line corresponds to which combination of game and payout option. Comment on what can be deduced about the two games and payout options.  \hfill [6]
+
+```{r dice sim, eval = T}
+diceGame <- function(nsim) 
+{
+  #Initialize matrix to store the payouts
+  # Double Trouble matrix
+  dt_payouts <- matrix(nrow = nsim,ncol= 2)
+   # Triple Threat matrix
+  tt_payouts <- matrix(nrow = nsim, ncol = 2)
+  
+  # Iterate through n_simulations
+  for(sim in 1:nsim)
+  {
+  # Roll the Dice
+    
+  # Double Trouble
+  diceNumbers <- seq(from = 1, to = 6)
+  dt_dices <- sample(diceNumbers, size = 2, replace=TRUE)
+  
+  # Triple Threat
+  diceNumbers <- seq(from = 1, to = 6)
+  tt_dices <- sample(diceNumbers, size = 3, replace=TRUE)
+  
+  # Evaluate Dice Rolls
+  
+  # Double Trouble
+  if (dt_dices[1] == dt_dices[2])
+  {
+    # Store payout option 1 and payout option 2
+    DTpayout <- c(50,(10*dt_dices[1]*dt_dices[2]))
+    
+  }else {
+    DTpayout <- c(0,0)
+  }
+  # Place in payout matrix
+  dt_payouts[sim,] <- DTpayout
+
+  # Triple Threat
+  if (tt_dices[1] == tt_dices[2] & tt_dices[1] == tt_dices[3])
+  {
+    # Store payout option 1 and payout option 2
+    payouts <- c(50,(10*tt_dices[1]*tt_dices[2]*tt_dices[2]))
+    
+  }else {
+    payouts <- c(0,0)
+  }
+  # Place in payout matrix
+  tt_payouts[sim,] <- payouts
+  }
+
+  # Calculate the mean for all payouts
+ MeanDTpayout1<- mean(dt_payouts[,1])
+ MeanDTpayout2 <- mean(dt_payouts[,2])
+ MeanTTpayout1<- mean(tt_payouts[,1])
+ MeanTTpayout2 <- mean(tt_payouts[,2])
+ return(c(MeanDTpayout1,MeanDTpayout2,MeanTTpayout1,MeanTTpayout2))
+ 
+  }
+```
+
+```{r , eval = T}
+# Create a mean payout matrix
+game_reps <- seq(from=100, to=100000, by=100)
+mean_payouts <- matrix(nrow=length(game_reps),ncol = 4)
+# LOOP through all games in games rep
+for (games in 1:length(game_reps)){
+  mean_payouts[games,] <- diceGame(game_reps[games])
+}
+```
+
+```{r , eval = T}
+
+plot(x=0,y=0,xlab='',xlim=c(min(game_reps),max(game_reps)),ylim=c(0,max(mean_payouts)))
+lines(x=game_reps,y=mean_payouts[,1],col='red')
+lines(x=game_reps,y=mean_payouts[,2],col='blue')
+lines(x=game_reps,y=mean_payouts[,3],col='green')
+lines(x=game_reps,y=mean_payouts[,4],col='yellow')
+
+legend('topright',
+       legend = c("DT:Payout One (R50)", "DT: Payout Two (R10xdice^2)",
+               "TT:Payout One (R50)", "TT: Payout Two (R10Xdice^3)"),
+       col= c('red','blue','green','yellow'),
+       cex = 0.5,
+       lwd=1,
+       lty=1)
+mean(mean_payouts[,4])
+```
+The double trouble and triple threat payout of R50 have the smallest expected returns at all n_simulations as compared to the other payouts. Therefore, one should not play the games with the R50 payout for both games. 
+
+With that being said, the games in which the payout is multiplied by the dices are more profitable.For the Triple Threat payout at lower n_sims it is possible to get more lucky or unlucky and  as the means payouts vary from 10 to 32. Thus illustrating a higher risk and higher reward stakes game. However due to the central limit theorem that states the mean of a sample of data will be closer to the mean of the overall population in question, as the sample size increases. This is shown small sample sizes of the triple threat payout (R10XDICE^3) can vary from 10 to 32. The sample size seems to converge to around 20. 
+
+This makes the best game with the best payout double trouble(R10*DICE^2) as the expected average for all n_sim hovers around 25 which is the highest expected payout for all games. 
+
+\vspace{20pt}
+
+Now suppose that the payout for Double trouble is a function: $$ p(x) = 50log(x)- x $$ where x is the number of throws of the dice. 
+
+b. Graph the function, for $x \, \epsilon \, [1;100]$ \hfill [1]
+
+```{r payout graph, eval = T}
+
+vec <- 1:100
+px<- 50*log(vec) - (vec)
+plot(px, type = 'l',xlab = 'x',ylab='p(x)')
+```
+
+c. Use ```optim``` to determine the optimal number of throws to maximise the payout. Start with x = 1 throws. \hfill [1]
+
+```{r optim payout, eval = T}
+px <- function(x){
+  return(50*log(x)-x)
+}
+
+optim(1,fn=px,control=list(fnscale=-1))
+print(paste('Optimal Amount of throws to maximize payout is : ',optim(1,fn=px,control=list(fnscale=-1))$par ))
+```
+
+d. Write a function to use the Newton-Raphson method to find the optimum number of throws to maximise payout. Start with x = 1 throws. Your function should return the number of throws, optimal value and number of iterations taken to converge to the optimal solution. \hfill [4]
+
+*Hints: $\dfrac{d}{dx} 50log(x+1) - x = \dfrac{50}{x+1} - 1$ and $\dfrac{d}{dx} \frac{50}{x+1} - 1 = \frac{-50}{(x+1)^2}$
+
+```{r newton raphson payout, eval = T}
+
+# Derive px function
+d_dx1 <- function(x) {
+  return((50/(x+1)) - 1)
+}
+
+d_dx2 <- function(x) {
+return(-50/((x+1)^2))
+}
+
+# Parameters are starting no of throws, tol and max_iter to stop convergence
+newton_raphson_opt <- function(x, tol, max_iter) {
+  x_t1 <- 0
+  for (iter in 1:max_iter) {
+   x_t1 <- x - (d_dx1(x) / d_dx2(x))
+    if (abs(x_t1 - x) < tol) {
+      return(list(no_throws = x_t1, opt_val = px(x_t1), iter = iter))
+    }
+    x <- x_t1 
+  }
+}
+
+opt_d<-newton_raphson_opt(x = 1, tol = 0.0001, max_iter=100)
+print(paste('Optimal Amount of throws to maximize payout is : ',opt_d$no_throws ))
+print(paste('Optimal Value : ',round(opt_d$opt_val,3) ))
+print(paste('Number of Iterations : ',opt_d$iter ))
+```
+
+\vspace{20pt} 
+
+\newpage
+
+## Question 2 [13]
+
+Suppose that you are trying to minimize the following function: $$f(x,y) = x^2 + y^2 + xsin(y) + ysin(x)$$
+
+
+a. Graph this function over the domains $x \, \epsilon \, [-5;5]$ and $y \, \epsilon \, [-5,5]$ using the ```outer``` and ```contour``` functions and an increment of 0.1 between successive values of x and y \hfill [2]
+
+```{r function graph, eval = T}
+
+xy <- function(x,y){
+  return(x^2 + y^2 + x*sin(y) + y*sin(x))
+}
+
+dx_vec <- Vectorize(FUN=xy,vectorize.args = c("x", "y"))
+x_range <- seq(from = -5, to = 5, length=20)
+y_range <- seq(from = -5, to = 5, length=20)
+z <- outer(X = x_range, Y = y_range, FUN= "xy" )
+
+par(mfrow=c(1,1), pty="s")
+contour(x_range, y_range, z, nlevels=20, xlab='X', ylab='Y')
+```
+
+b. Find the minimum of the function using ```optim``` with the Nelder-Mead method. Use (-4,-4) as the starting values for x and y.  \hfill [2]
+
+```{r optim grad, eval = T}
+
+fxy <- function(par){
+  x <- par[1]
+  y <- par[2]
+  xy <- xy(x,y)
+  return(xy)
+}
+
+optim(par=c(-4,-4),fn=fxy, method = 'Nelder-Mead')
+
+```
+
+*Gradient descent* is a numerical optimization routine that is often used to obtain the parameters that minimize a multi-parameter function. The algorithm is an iterative one. If we define $$Param_i = (a^{(i)},b^{(i)})^T$$ as the value of a $2 \times 1$ vector that contains the estimated optimal values of x and y at iteration i,  the algorithm updates the parameter estimates using the vector $Param_i$ as well as the gradient of the function ```f(x,y)``` at $Param_i$ (i.e. $f'(Param_i)$) using the following update rule: $$Param_{i+1} = Param_i - \alpha f'(Param_i),$$ where $\alpha$ is some constant representing the learning rate.  
+
+c. Write an R function to calculate the gradients of ```f```, where $\dfrac{df}{dx} =  2x + siny + ycosx$ and $\dfrac{df}{dy} = 2y + xcosy + sinx$. Return the answers as a two-dimensional vector. Name the function ```grad```.   \hfill [2]
+
+```{r grad func, eval = T}
+grad <- function(x,y){
+  x_grad <- 2*x + sin(y) + y*cos(x)
+  y_grad <- 2*y + x*cos(y) + sin(x)
+  return(c(x_grad,y_grad))
+}
+```
+
+d.  Now, write your own gradient descent algorithm. Name the function ```grad_desc```. Set $\alpha=0.1$.  Your function should contain the following arguments, ```params```, ```max_iters```, ```tol``` and ```alpha```, where ```max_iters``` is the maximum allowable number of iterations used to obtain the optimal parameter vector estimates. Include a stopping criterion that terminates the algorithm once both gradients are within ```tol``` =  0.0001 of 0. Set the maximum number of iterations as 1000. Use (-4,-4) as the starting parameter values. 
+Print out the optimal parameter values, the value of the function at these parameter values, the gradients, and the number of iterations taken for the algorithm to converge. If the algorithm does not converge within ```max_iters```, terminate the algorithm and print a message that indicates that the algorithm did not converge within ```max_iters``` iterations. \hfill [4]
+
+```{r grad desc, eval = T}
+options(scipen = 100)
+grad_desc <- function(params = NA, max_iter = 1, tol=0.0001, alpha = 0.1,print_=TRUE){
+  x_i<- params[1]
+  y_i<- params[2]
+  iter <- 0
+  
+  while(iter <= max_iter){
+    fGradient_i <- grad(x_i,y_i)
+
+    if (abs(fGradient_i[1]) < tol & abs(fGradient_i[2]) < tol){
+      break
+    }
+    x_i <- x_i - alpha*fGradient_i[1]
+    y_i <- y_i - alpha*fGradient_i[2]
+    iter <- iter + 1
+  }
+  if (print_ == TRUE){
+    if (iter == max_iter){ 
+      print(paste('Function did not converge in ', max_iter, " iterations"))
+      }else{
+    
+    fxy_opt <- xy(x_i,y_i)
+    print(paste('Optimal Parameter Values = x: ', round(x_i,11), ", y: ", round(y_i,11)))
+    print(paste("Optimal Value of the function: ", round(fxy_opt,11)))
+    print(paste("Gradient of xy at optimal values = x:", round(fGradient_i[1],10),", y:", round(fGradient_i[2],11)))
+    print(paste("Number of iterations to optimal parameters : ", iter))
+      }
+  }
+  return(iter)
+}
+grad_desc(c(-4,-4), max_iter = 1000,tol=0.0001)
+
+
+```
+
+e. Using your gradient descent algorithm above, write a program to investigate the effect of using different learning rates, ranging from $\alpha = 0.005$ to $\alpha = 0.495$ in increments of 0.001. Use the same values for all the other parameters of the algorithm as above. Record the number of iterations taken to reach convergence for each value of $\alpha$. Plot a line graph of the number of iterations to reach convergence as a function of the learning rate. Title the graph appropriately. \hfill [3]
+
+
+```{r learn rate, eval = T}
+# Create Learning Rate sequence
+alpha_range <- seq(from = 0.005, to = 0.495, by = 0.001)
+
+# Iterate and create a list with all number of iterations to converage
+iter_n_alpha <- lapply(alpha_range,grad_desc, params = c(-4,-4),tol = 0.0001, max_iter = 1000,print_=FALSE)
+
+plot(x=alpha_range,
+     y=iter_n_alpha,
+     col = 'black',
+     type = 'l',
+     lwd=1.5,
+     xlab='Alpha(Learning Rate)',
+     ylab ='Number of Iterations',
+     main='Effect of Alpha on the number of iterations needed for convergence')
+```
+
+\vspace{20pt} 
+
+\newpage
+
+## Question 3 [10]
+
+The figure below is of the game 'tic tac toe' or 'noughts and crosses'. The game is played by two players, one who enters 'X's and another who enters '0's. The players take turns in choosing which of the nine blocks to enter their symbol, with the goal being to win the game by having three of their symbols in a row (either in a straight line or along a diagonal). If neither player manages to get three of their symbols in a row before all nine blocks have symbols, the game ends in a draw. 
+
+```{r helper functions ,fig.align='center', out.width = '200px' , eval = T}
+# Function to update the board according to players choice and position
+updateBoard <- function(board,position_,choice)
+  {
+  if (position_ == 1){
+    board[1,1] <- choice
+  }
+  if (position_ == 2){
+    board[1,2] <- choice
+  }
+  if (position_ == 3){
+    board[1,3] <- choice
+  }
+  if (position_ == 4){
+    board[2,1] <- choice
+  }
+  if (position_ == 5){
+    board[2,2] <- choice
+  }
+  if (position_ == 6){
+    board[2,3] <- choice
+  }
+  if (position_ == 7){
+    board[3,1] <- choice
+  }
+  if (position_ == 8){
+    board[3,2] <- choice
+  }
+  if (position_ == 9){
+    board[3,3] <- choice
+  }
+  
+  return(board)
+}
+# Function to eliminate a choosen position from list of avalible positions
+updatePosition<- function(avail_pos,position)
+  {
+  avail_pos<- avail_pos[! avail_pos %in% position]
+  return(avail_pos)
+}
+
+# Function to check if player won the game
+winCheck <- function(board)
+  {
+  if (board[1,1] == board[1,2] & board[1,1] == board[1,3] |
+      board[2,1] == board[2,2] & board[2,1] == board[2,3] |
+      board[3,1] == board[3,2] & board[3,1] == board[3,3] |
+      board[1,1] == board[2,2] & board[1,1] == board[3,3] |
+      board[1,1] == board[2,1] & board[1,1] == board[3,1] |
+      board[1,2] == board[2,2] & board[1,2] == board[3,2] |
+      board[1,3] == board[2,3] & board[1,3] == board[3,3] |
+      board[1,3] == board[2,2] & board[1,3] == board[3,1]){
+    return(TRUE)
+  }else{
+    return(FALSE)
+  }
+}
+
+```
+
+```{r tictactoe function, , eval = T }
+# Function to play tictactoe n times
+tictactoe <- function(nsim){
+  # Create win counter and allow for choices for x and o
+  counter <- c()
+  choice <- c('x','o')
+  
+  # Loop through specified nsims amount
+  for (sim in 1:nsim){ 
+    # Create board and positions for each game
+    board <- t(matrix(1:9,nrow=3,ncol=3))
+    position <- 1:9
+    GAME <- FALSE
+    # Randomize the starting player for each game
+    startingPlayer <- sample(1:2,size=1, replace=FALSE)
+    
+    # While game state is ongoing
+    while(GAME == FALSE){
+      # Randomize position of board and choice
+      p1 <- sample(position,size=1)
+      c1 <- sample(choice,size=1)
+      # Update the board and avalible positions with specified choice and position
+      board<-updateBoard(board = board,position_ = p1,choice = c1)
+      position<-updatePosition(avail_pos=position,position=p1)
+      # Check if current player has won the game
+      GAME <- winCheck(board = board)
+      # If current player has won game append a win in the counter
+      if (GAME == TRUE){
+        if (startingPlayer == 1){
+          ifelse(length(position) %% 2 == 0,counter <- append(counter,"Player 1 Wins"),
+                 counter <- append(counter,"Player 2 Wins"))
+      }
+        if (startingPlayer == 2){
+          ifelse(length(position) %% 2 == 0,counter <- append(counter,"Player 2 Wins"),
+                 counter <- append(counter,"Player 1 Wins"))
+        }  
+        break
+      }
+      # Otherwise if no positions on board left append a draw on the counter
+      if (length(position) == 0){
+        GAME <- TRUE
+        counter <- append(counter,"Draws")
+        }
+    }
+  }
+  # Return the counter
+  return(counter)
+}
+```
+Write an R program in order to simulate the above game 10000 times.Your program should do the following:
+
+  - Randomly select which player starts first
+  - Randomly populate the blocks, one at a time, with each player's symbol 
+  - Stop the game as soon as one of the players has won, or when all blocks have been filled (i.e. the game has been drawn)
+  - Record which player has won or whether the game ended in a draw
+
+Print the proportion of times each of the three results of the game happens.
+
+*Hint: denote each of the blocks with a number, from 1 to 9, as in the diagram below:
+```{r tic tac toe sim, echo = T, eval = T}
+counter<-tictactoe(10000)
+data.frame(table(counter)/10000)
+```
+
+
